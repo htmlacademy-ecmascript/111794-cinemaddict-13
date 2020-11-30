@@ -183,7 +183,7 @@ buttonLoadMoreFilms.addEventListener(`click`, () => {
 /*!***************************!*\
   !*** ./src/mock/const.js ***!
   \***************************/
-/*! exports provided: FILM_TITLES, FILM_SNIPPETS, FILM_POSTERS, FILM_GENRES, FILM_DIRECTORS, FILM_SCREENWRITERS, FILM_ACTORS, FILM_COUNTRIES, FILM_DESCRIPTIONS, FILM_COMMENTS, RANK_USER */
+/*! exports provided: FILM_TITLES, FILM_SNIPPETS, FILM_POSTERS, FILM_GENRES, FILM_DIRECTORS, FILM_SCREENWRITERS, FILM_ACTORS, FILM_COUNTRIES, FILM_DESCRIPTIONS, FILM_COMMENTS */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -198,7 +198,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FILM_COUNTRIES", function() { return FILM_COUNTRIES; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FILM_DESCRIPTIONS", function() { return FILM_DESCRIPTIONS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FILM_COMMENTS", function() { return FILM_COMMENTS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RANK_USER", function() { return RANK_USER; });
 const FILM_TITLES = [
   `Made for each other`,
   `Popeye meets sinbad`,
@@ -322,12 +321,6 @@ const FILM_COMMENTS = [
   }
 ];
 
-const RANK_USER = [
-  `novice`,
-  `fan`,
-  `movie buff`
-];
-
 
 /***/ }),
 
@@ -335,7 +328,7 @@ const RANK_USER = [
 /*!**************************!*\
   !*** ./src/mock/film.js ***!
   \**************************/
-/*! exports provided: generateValue, generateUniqueValues, generateDuration, generateDate, generateComments, generateFilm */
+/*! exports provided: generateValue, generateUniqueValues, generateDuration, generateDate, generateComments, getRandomBool, generateFilm */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -345,6 +338,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateDuration", function() { return generateDuration; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateDate", function() { return generateDate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateComments", function() { return generateComments; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomBool", function() { return getRandomBool; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateFilm", function() { return generateFilm; });
 /* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./const.js */ "./src/mock/const.js");
 const dayjs = __webpack_require__(/*! dayjs */ "./node_modules/dayjs/dayjs.min.js");
@@ -401,6 +395,10 @@ const generateComments = () => {
   return _const_js__WEBPACK_IMPORTED_MODULE_0__["FILM_COMMENTS"].slice(0, randomIndex);
 };
 
+const getRandomBool = () => {
+  return !!getRandomInteger();
+};
+
 const generateFilm = () => {
   return {
     title: generateValue(_const_js__WEBPACK_IMPORTED_MODULE_0__["FILM_TITLES"]),
@@ -413,17 +411,36 @@ const generateFilm = () => {
     comments: generateComments(),
     originalTitle: generateValue(_const_js__WEBPACK_IMPORTED_MODULE_0__["FILM_TITLES"]),
     director: generateValue(_const_js__WEBPACK_IMPORTED_MODULE_0__["FILM_DIRECTORS"]),
-    screenwriter: generateUniqueValues(_const_js__WEBPACK_IMPORTED_MODULE_0__["FILM_SCREENWRITERS"]),
-    actor: generateUniqueValues(_const_js__WEBPACK_IMPORTED_MODULE_0__["FILM_ACTORS"]),
+    screenwriters: generateUniqueValues(_const_js__WEBPACK_IMPORTED_MODULE_0__["FILM_SCREENWRITERS"]),
+    actors: generateUniqueValues(_const_js__WEBPACK_IMPORTED_MODULE_0__["FILM_ACTORS"]),
     releaseDate: generateDate(),
     country: generateValue(_const_js__WEBPACK_IMPORTED_MODULE_0__["FILM_COUNTRIES"]),
     description: generateValue(_const_js__WEBPACK_IMPORTED_MODULE_0__["FILM_DESCRIPTIONS"]),
     ageRating: getRandomFloat(0, 18),
-    inQueueForViewing: !!getRandomInteger(),
-    isWatch: !!getRandomInteger(),
-    favorite: !!getRandomInteger()
+    inQueueForViewing: getRandomBool(),
+    isWatch: getRandomBool(),
+    favorite: getRandomBool()
   };
 };
+
+
+/***/ }),
+
+/***/ "./src/utils/const.js":
+/*!****************************!*\
+  !*** ./src/utils/const.js ***!
+  \****************************/
+/*! exports provided: RANK_USER */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RANK_USER", function() { return RANK_USER; });
+const RANK_USER = [
+  `novice`,
+  `fan`,
+  `movie buff`
+];
 
 
 /***/ }),
@@ -502,7 +519,7 @@ const getStringValues = (items) => {
   return items.join(`, `);
 };
 
-const createFilmTemplate = ({title, poster, snippet, rating, yearCreated, duration, genre, comments}) => {
+const createFilmTemplate = ({title, poster, snippet, rating, yearCreated, duration, genre, comments, inQueueForViewing, isWatch, favorite}) => {
   return `
     <article class="film-card">
       <h3 class="film-card__title">${title}</h3>
@@ -516,9 +533,9 @@ const createFilmTemplate = ({title, poster, snippet, rating, yearCreated, durati
       <p class="film-card__description">${snippet}</p>
       <a class="film-card__comments">${comments.length} comments</a>
       <div class="film-card__controls">
-        <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
-        <button class="film-card__controls-item button film-card__controls-item--mark-as-watched" type="button">Mark as watched</button>
-        <button class="film-card__controls-item button film-card__controls-item--favorite" type="button">Mark as favorite</button>
+        <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist ${inQueueForViewing ? `film-card__controls-item--active` : ``}" type="button">Add to watchlist</button>
+        <button class="film-card__controls-item button film-card__controls-item--mark-as-watched ${isWatch ? `film-card__controls-item--active` : ``}" type="button">Mark as watched</button>
+        <button class="film-card__controls-item button film-card__controls-item--favorite ${favorite ? `film-card__controls-item--active` : ``}" type="button">Mark as favorite</button>
       </div>
     </article>
   `;
@@ -623,7 +640,7 @@ const getComments = (items) => {
   return comments.join(``);
 };
 
-const createPopupFilmDetailsTemplate = ({poster, ageRating, title, originalTitle, rating, director, screenwriter, actor, genre, releaseDate, duration, country, description, comments}) => {
+const createPopupFilmDetailsTemplate = ({poster, ageRating, title, originalTitle, rating, director, screenwriters, actors, genre, releaseDate, duration, country, description, comments, inQueueForViewing, isWatch, favorite}) => {
   return `
     <section class="film-details">
       <form class="film-details__inner" action="" method="get">
@@ -657,11 +674,11 @@ const createPopupFilmDetailsTemplate = ({poster, ageRating, title, originalTitle
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Writers</td>
-                  <td class="film-details__cell">${getStringValues(screenwriter)}</td>
+                  <td class="film-details__cell">${getStringValues(screenwriters)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Actors</td>
-                  <td class="film-details__cell">${getStringValues(actor)}</td>
+                  <td class="film-details__cell">${getStringValues(actors)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Release Date</td>
@@ -689,13 +706,13 @@ const createPopupFilmDetailsTemplate = ({poster, ageRating, title, originalTitle
           </div>
     
           <section class="film-details__controls">
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist">
+            <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${inQueueForViewing ? `checked` : ``}>
             <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
-    
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched">
+
+            <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${isWatch ? `checked` : ``}>
             <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
     
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite">
+            <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${favorite ? `checked` : ``}>
             <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
           </section>
         </div>
@@ -757,7 +774,7 @@ const createPopupFilmDetailsTemplate = ({poster, ageRating, title, originalTitle
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createRankUserTemplate", function() { return createRankUserTemplate; });
-/* harmony import */ var _mock_const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../mock/const.js */ "./src/mock/const.js");
+/* harmony import */ var _utils_const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/const.js */ "./src/utils/const.js");
 
 
 const getRank = (count) => {
@@ -769,7 +786,7 @@ const getRank = (count) => {
   } else if (count > 20) {
     i = 2;
   }
-  return _mock_const_js__WEBPACK_IMPORTED_MODULE_0__["RANK_USER"][i];
+  return _utils_const_js__WEBPACK_IMPORTED_MODULE_0__["RANK_USER"][i];
 };
 
 const createRankUserTemplate = (count) => {
